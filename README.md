@@ -1,1 +1,1 @@
-# Deep-Graph-Convolutional-Neural-Network
+# Dynamic-Graph-Convolutional-Neural-Network
