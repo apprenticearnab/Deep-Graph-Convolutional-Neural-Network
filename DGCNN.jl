@@ -1,6 +1,7 @@
 using HDF5
 using LinearAlgebra
 using Flux
+using Flux.Optimise: update!
 using Zygote
 
 fid = h5open("test_point_clouds.h5","r")
@@ -76,14 +77,13 @@ function loss(x,y)
      return crossentropy(output,y)
 end
 function train(X,y_label)
-     grads = gradient(() -> loss(X, y_label), params(model))    
-     update!(opt, params(model) , grads)
+     grads = gradient(() -> loss(X, y_label), Flux.params(model,layer1,layer2,layer3,layer4))    
+     update!(opt, Flux.params(model,layer1,layer2,layer3,layer4) , grads)
      return loss(X,y_labels)
 end
 for epoch in 1:100
     println("-------Epoch : $epoch -------")
     current_loss = train(a ,labellist)
 end 
-     
 
      
