@@ -1,4 +1,4 @@
-using HDF5
+                                                                                                                            using HDF5
 using LinearAlgebra
 using Flux
 using Flux.Optimise: update!
@@ -62,7 +62,7 @@ function KNN(s,adj_mat,k)# calculates the k nearest neighbors for every points a
    x = cat(z,t;dims=2)
    return x
 end
-#generating model as descripted in the paper , I have excluded the segmentation and transformation network 
+#generating model as descripted in the paper , I have excluded the segmentation and transformation network , as the dimension of matrix (in our case 20*6) is already lower I have directly applied dense layer instead of applying further convolution to avoid loss of information we can reduce the output dimension we can avoid data overloading effect but it will be effective if we train the model in GPUs to avoid these kind of effects
 
 layer1 = Chain(x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,500),Dense(500,912))
 layer2 = Chain(x->reshape(x,3,304)',x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,500),Dense(500,912))
