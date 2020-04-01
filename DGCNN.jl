@@ -62,13 +62,21 @@ function KNN(s,adj_mat,k)# calculates the k nearest neighbors for every points a
    x = cat(z,t;dims=2)
    return x
 end
+function max(x,p)
+    for i=1:p
+      for j=1:20
+       u[i,j] = maximum(x[i,:,j])
+      end
+    end
+    return u
+end    
 #generating model as descripted in the paper , I have excluded the segmentation and transformation network , as the dimension of matrix (in our case 20*6) is already lower I have directly applied dense layer instead of applying further convolution to avoid loss of information we can reduce the output dimension we can avoid data overloading effect but it will be effective if we train the model in GPUs to avoid these kind of effects
 
-layer1 = Chain(x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,500),Dense(500,912))
-layer2 = Chain(x->reshape(x,3,304)',x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,500),Dense(500,912))
-layer3 = Chain(x->reshape(x,3,304)',x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,500),Dense(500,912))
-layer4 = Chain(x->reshape(x,3,304)',x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,912),Dense(912,1824))
-model = Chain(x->vcat(layer4(layer3(layer2(layer1(x)))),layer3(layer2(layer1(x))),layer2(layer1(x)),layer1(x)),x->reshape(x,3,1520)',x->KNN(x,pairwise_distance(x),19),x->x[:,:,1],x->reshape(x,114),Dense(114,1824),Dense(1824,3648),Dense(3648,912),Dense(912,10),softmax)
+layer1 = Chain(x->KNN(x,pairwise_distance(x),19),x->x[:,1:19,1:20],Dense(6,8),Dense(8,9),x->max(x,9))
+layer2 = Chain(x->reshape(x,3,60)',x->KNN(x,pairwise_distance(x),19),x->x[:,1:19,1:20],Dense(6,8),Dense(8,9),x->max(x,9))
+layer3 = Chain(x->reshape(x,3,60)',x->KNN(x,pairwise_distance(x),19),x->x[:,1:19,1:20],Dense(6,8),Dense(8,9),x->max(x,9))
+layer4 = Chain(x->reshape(x,3,60)',x->KNN(x,pairwise_distance(x),19),x->x[:,1:19,1:20],Dense(6,10),Dense(10,18),x->max(x,18))
+model = Chain(x->vcat(layer4(layer3(layer2(layer1(x)))),layer3(layer2(layer1(x))),layer2(layer1(x)),layer1(x)),x->reshape(x,3,300)',x->KNN(x,pairwise_distance(x),19),x->x[:,1:19,1:20],Dense(6,7),Dense(7,15),Dense(15,12),Dense(12,10),softmax)
     
 opt = ADAM()
 labellist = [1,0,0,0,0,0,0,0,0,0]   #As I am training the model on 3D MNIST dataset I have taken the labellist vector as onehot vector of length 10 and arbitarily taken that the first digit is 0 for training the model 
