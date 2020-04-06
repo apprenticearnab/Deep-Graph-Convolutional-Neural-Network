@@ -48,10 +48,7 @@ function DGCNN(n_shapes::Int64,k::Int64)
      layer3 = Chain(x->edge(x,k),Conv((1,1), 16=>16,relu),x->maximum(x,dims=2),x->reshape(x,size(x,1),size(x,3),size(x,4)))
      layer4 = Chain(x->edge(x,k),Conv((1,1), 32=>32,relu),x->maximum(x,dims=2),x->reshape(x,size(x,1),size(x,3),size(x,4)))
 #model1 = Chain(layer1,layer2,layer3,layer4,x->reshape(x,(32*size(x,1)),size(x,3)))
-"""function f(y) 
-     z = cat(layer4(layer3(layer2(layer1(y)))),layer3(layer2(layer1(y))),layer2(layer1(y)),layer1(y),dims=2)
-     return z
-end"""
+
      model = Chain(x->cat(layer4(layer3(layer2(layer1(x)))),layer3(layer2(layer1(x))),layer2(layer1(x)),layer1(x),dims=2),x->reshape(x,(64*size(x,1)),size(x,3)),Dense(64*size(x,1),114),Dropout(0.5),Dense(114,118),Dropout(0.5),Dense(118,42),Dense(42,n_shapes),softmax)
      return DGCNN(layer1,layer2,layer3,layer4,model)
 end
