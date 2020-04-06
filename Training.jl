@@ -12,8 +12,8 @@ using Flux:@functor
 using Zygote:@nograd
 include("basedir/ModelNet.jl")
 include("basedir/DGCNN.jl")
-d = ModelNet("partition","basedir/folder name where the datasets exists",20,10)
-v = ModelNet("partition","basedir/folder name where the datasets exists",20,10)
+d = ModelNet("partition","basedir/folder name where the datasets exists",num_points,num_shapes)
+v = ModelNet("partition","basedir/folder name where the datasets exists",num_points,num_shapes)
  
 x = d[1]     #random x
 
